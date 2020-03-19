@@ -11,7 +11,6 @@ let cities = [];
 const citiesApi = 'database/cities.json';
 const proxy = 'https://cors-anywhere.herokuapp.com/';
 const API_KEY = 'f3a579e1767486fce804a4c1eaa5e01a';
-const PRICE_CALENDAR = `http://min-prices.aviasales.ru/calendar_preload`;
 
 //Functions
 const getData = async (url, callback) => {
@@ -25,12 +24,30 @@ const getData = async (url, callback) => {
 };
 
 const getTickets = (fromCity, toCity, date) => {
-  let fromCode = cities.filter(item => item.name === fromCity)[0].code;
-  let toCode = cities.filter(item => item.name === toCity)[0].code;
-  const PRICE_CALENDAR = `http://min-prices.aviasales.ru/calendar_preload?origin=${fromCode}&destination=${toCode}&depart_date=${date}&one_way=true`;
+  let fromCode = cities.find(item => item.name === fromCity).code;
+  let toCode = cities.find(item => item.name === toCity).code;
+  const PRICE_CALENDAR = `http://min-prices.aviasales.ru/calendar_preload?origin=${fromCode}&destination=${toCode}&depart_date=${date}&one_way=true&token=${API_KEY}`;
   getData(PRICE_CALENDAR, data => {
-    console.log(data);
+    renderCheap(data, date);
   });
+};
+
+const renderCheap = (data, date) => {
+  const cheapTicketYear = data.best_prices;
+  const cheapTicketDay = cheapTicketYear.filter(
+    item => item.depart_date === date
+  );
+
+  renderCheapDay(cheapTicketDay);
+  renderCheapYear(cheapTicketYear);
+};
+
+const renderCheapDay = cheapTicket => {
+  console.log(cheapTicket);
+};
+
+const renderCheapYear = cheapTickets => {
+  console.log(cheapTickets);
 };
 
 const showCity = (event, list) => {
@@ -79,7 +96,7 @@ getData(citiesApi, data => {
   cities = dataCities.filter(item => item.name !== null);
 });
 
-findButton.addEventListener('click', event => {
+formSearch.addEventListener('submit', event => {
   event.preventDefault();
   const from = fromInput.value;
   const to = toInput.value;
